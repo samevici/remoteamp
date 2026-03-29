@@ -22,7 +22,10 @@
 
 // set chip select pins the digital pots:
 const int CSPin00 = 10;
-const int CSPin01 = 37;
+const int CSPin01 = 36;
+const int CSPin02 = 37;
+const int CSPin10 = 0;
+const int CSPin11 = 38;
 //const int SHDNPin = 7;
 
 //save important addresses
@@ -43,18 +46,23 @@ char begin = '!';
 int selection = 3;
 int reading = 0;
 int potSelect = 3;
-int CSSelect = 0;
+int CSSelect = -1;
 
 void setup() {
   // set the CS pins as outputs:
   pinMode (CSPin00, OUTPUT);
   pinMode (CSPin01, OUTPUT);
+  pinMode (CSPin02, OUTPUT);
+  pinMode (CSPin10, OUTPUT);
+  pinMode (CSPin11, OUTPUT);
   // set the shutdownPin as an output:
   //inMode (SHDNPin, OUTPUT);
   // start with all the pots shutdown
   //digitalWrite(shutdownPin,LOW);
   // initialize SPI:
   SPI.begin(); 
+  SPI1.begin(); 
+ 
 
   //Serial.begin instruction is ignored by teensy!
   Serial.println("Press 'o' to begin");  
@@ -86,7 +94,7 @@ if (Serial.available()) {
     Serial.println(potSelect);
 
     if (potSelect == 1) {
-      CSSelect = CSPin00;
+      CSSelect = CSPin11;
     }
 
     if (potSelect == 2) {
@@ -160,8 +168,8 @@ void digitalPotWrite(int CSpin, int address, int value) {
   // take the SS pin low to select the chip:
   digitalWrite(CSpin,LOW);
   //  send in the address and value via SPI:
-  SPI.transfer(address);
-  SPI.transfer(value);
+  SPI1.transfer(address);
+  SPI1.transfer(value);
   // take the SS pin high to de-select the chip:
   digitalWrite(CSpin,HIGH); 
 }
@@ -172,8 +180,8 @@ int digitalPotRead(int CSpin, int address) {
   // take the SS pin low to select the chip:
   digitalWrite(CSpin,LOW);
   //  send in the address and value via SPI:
-  SPI.transfer(address);
-  int value = SPI.transfer(0);
+  SPI1.transfer(address);
+  int value = SPI1.transfer(0);
  
   // take the SS pin high to de-select the chip:
   digitalWrite(CSpin,HIGH); 

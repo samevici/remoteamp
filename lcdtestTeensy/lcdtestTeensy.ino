@@ -12,19 +12,26 @@
 //   Best Performance: both pins have interrupt capability
 //   Good Performance: only the first pin has interrupt capability
 //   Low Performance:  neither pin has interrupt capability
-//Encoder knobLeft(5, 6);
+
 Encoder Knob(7, 8);
 LiquidCrystal_I2C lcd(0x27,16,2);
 //   avoid using pins with LEDs attached
 
+volatile bool resetKnob = false;
+
 void setup() {
+  pinMode(6, INPUT);
+  attachInterrupt(digitalPinToInterrupt(6), resetVal, FALLING);
+
   lcd.init();                      // initialize the lcd 
   // Print a message to the LCD.
   lcd.backlight();
-  delay(100);
+  delay(1000);
   lcd.setCursor(0,0);
   //Serial.begin(9600);
+  lcd.print("                ");
   lcd.print("Encoder Test:");
+
 }
 
 
@@ -33,6 +40,18 @@ long Position= -999;
 void loop() {
   long  newKnob;
   newKnob = Knob.read();
+
+if (resetKnob==true) {
+   // newKnob = 0;
+    lcd.setCursor(0,1);
+    lcd.print("                ");
+    lcd.setCursor(0,1);
+    lcd.print("Knob= ");
+    Position = 0;
+    lcd.print(Position); 
+    resetKnob = false;
+  }
+ 
   if (newKnob != Position) {
     lcd.setCursor(0,1);
     lcd.print("                ");
@@ -41,12 +60,13 @@ void loop() {
     lcd.print(newKnob); 
     Position = newKnob;
   }
-  // if a character is sent from the serial monitor,
-  // reset both back to zero.
- /* if (Serial.available()) {
-    Serial.read();
-    Serial.println("Reset both knobs to zero");
-    //knobLeft.write(0);
-    knobRight.write(0);
-  }*/
+
 }
+
+void resetVal()
+{
+  resetKnob = true;
+}
+
+
+
